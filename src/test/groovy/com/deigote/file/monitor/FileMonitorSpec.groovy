@@ -10,8 +10,6 @@ class FileMonitorSpec extends Specification implements Logging {
 
    @Unroll
    void "when a file monitor is created #recursivenessArgsLabel, is expected to be #recursiveLabel"() {
-      //setup: 'An empty monitor delegate'
-      //FileMonitorDelegate monitorDelegate = Mock(FileMonitorDelegate)
       given: 'The mandatory constructor args'
       List mandatoryArgs = [[], Mock(FileMonitorDelegate)]
 
@@ -30,6 +28,11 @@ class FileMonitorSpec extends Specification implements Logging {
       false            | false                 | 'as non recursive'
 
       recursiveLabel = expectedRecursiveness ? 'recursive' : 'non recursive'
+   }
+
+   void "a file monitor is runnable, so it is compatible with existing APIs such as Java Threads"() {
+      expect:
+      Runnable.isAssignableFrom(FileMonitor)
    }
 
 }

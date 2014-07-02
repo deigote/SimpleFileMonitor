@@ -3,12 +3,11 @@ package com.deigote.file.monitor
 import com.deigote.misc.Logging
 import java.nio.file.Path
 
+class FileMonitor implements Runnable, Logging {
 
-class FileMonitor implements Logging {
-
-   private Set<Path> monitoredPaths = [] as Set
-   FileMonitorDelegate monitorDelegate
-   Boolean recursive
+   final Set<Path> monitoredPaths = [] as Set
+   final FileMonitorDelegate monitorDelegate
+   final Boolean recursive
 
    FileMonitor(
       Collection<File> rootDirectories, FileMonitorDelegate monitorDelegate,
@@ -16,4 +15,9 @@ class FileMonitor implements Logging {
    ) {
       this.recursive = recursive
    }
+
+   @Override
+   void run() {
+   }
+
 }
