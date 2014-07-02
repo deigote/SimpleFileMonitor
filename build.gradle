@@ -10,6 +10,11 @@ sourceCompatibility = 1.7
 targetCompatibility = 1.7
 
 dependencies {
-    compile 'org.codehaus.groovy:groovy-all:2.3.2'
-    testCompile 'org.spockframework:spock-core:0.7-groovy-2.0'
+   // Groovy
+   compile 'org.codehaus.groovy:groovy-all:2.3.2'
+   // Logging
+   compile 'org.slf4j:slf4j-api:1.7.5'
+   testRuntime 'org.slf4j:slf4j-simple:1.7.7'
+   // Testing
+   testCompile 'org.spockframework:spock-core:0.7-groovy-2.0'
 }
