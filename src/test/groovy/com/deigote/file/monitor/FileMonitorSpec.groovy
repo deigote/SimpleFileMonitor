@@ -6,6 +6,7 @@ import spock.lang.Unroll
 
 import java.nio.file.FileSystems
 import java.nio.file.Path
+import java.nio.file.WatchKey
 import java.nio.file.WatchService
 import java.util.logging.ConsoleHandler
 
@@ -41,11 +42,6 @@ class FileMonitorSpec extends Specification implements Logging {
       recursiveLabel = expectedRecursiveness ? 'recursive' : 'non recursive'
    }
 
-   void "a file monitor is runnable, so it is compatible with existing APIs such as Java Threads"() {
-      expect:
-      Runnable.isAssignableFrom(FileMonitor)
-   }
-
    @Unroll
    void "when created (as #recursivenessLabel), a file monitor will use FileUtils to find the directories paths (as #recursivenessLabel) and register them with the file watcher"() {
       given: 'A set of files'
@@ -78,8 +74,42 @@ class FileMonitorSpec extends Specification implements Logging {
       false     | 'non recursive'
    }
 
-   WatchService mockFileWatcher() {
-      GroovySpy(WatchService)
+   void "a file monitor is runnable, so it is compatible with existing APIs such as Java Threads"() {
+      expect:
+      Runnable.isAssignableFrom(FileMonitor)
+   }
+
+   void "when a file monitor is runned, it takes events from its file watcher and pass them to its delegate"() {
+      given: 'A mocked watch service that always return some watch key'
+      List takenWatchKeys = []
+      def watchService = [ take: { ->
+         if (takenWatchKeys.size() > 10) sleep 100
+         takenWatchKeys << Mock(WatchKey)
+         takenWatchKeys.last()
+      }] as WatchService
+
+      and: 'A delegate who just stores what it gets'
+      List passedWatchKeys = []
+      FileMonitorDelegate monitorDelegate = [
+         processEvent: { e -> passedWatchKeys << e }
+      ] as FileMonitorDelegate
+
+      and: 'A mocked FileUtils to return the mocked watch service'
+      GroovyMock(FileUtils, global:true)
+      FileUtils.createWatchService() >> watchService
+      FileUtils.findDirectoriesPaths(_,_) >> [ Mock(Path)]
+
+      when: 'A file monitor is run for an amount of time'
+      FileMonitor fileMonitor = new FileMonitor([ Mock(File) ], monitorDelegate)
+      Thread fileMonitorRunner = new Thread(fileMonitor)
+      fileMonitorRunner.start()
+      sleep 100
+      fileMonitor.stop()
+      sleep 100
+
+      then: 'All the keys that it takes from the watch service are passed to the delegate'
+      logger.info "${takenWatchKeys} were taken and ${passedWatchKeys} were received"
+      takenWatchKeys.size() == passedWatchKeys.size()
    }
 
    void cleanMetaClasses(Class ... classesToClean) {
