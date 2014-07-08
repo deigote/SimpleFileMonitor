@@ -5,6 +5,7 @@ import spock.lang.Specification
 import spock.lang.Unroll
 import java.nio.file.FileSystem
 import java.nio.file.FileSystems
+import java.nio.file.FileVisitor
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.WatchKey
@@ -62,7 +63,24 @@ class FileUtilsSpec extends Specification implements Logging {
       recursiveArg | recursiveLabel     | recursiveCallLabel
       true         | 'as recursive'     | 'and all its subpaths'
       false        | 'as non recursive' | ''
+   }
 
+   void "the method findAllSubPaths uses a file tree walker with the provided root path"() {
+      given: 'A path with some sub paths'
+      def rootPath = Mock(Path)
+      def subPaths = (0..2).collect { Mock(Path) }.eachWithIndex { it, idx -> it.hashCode() >> idx }
+      def allPaths = [rootPath] + subPaths
+
+      and: 'A working WalkFileTree method'
+      Files.metaClass.'static'.walkFileTree = { Path path, FileVisitor fileVisitor ->
+         allPaths.each { fileVisitor.preVisitDirectory(it, Mock(BasicFileAttributes)) }
+      }
+
+      when: 'findAllSubPaths is invoked for that root path'
+      def obtainedPaths = FileUtils.findAllSubPaths(rootPath)
+
+      then: 'the paths passed to the file visitor are returned as a result'
+      obtainedPaths == allPaths as Set
    }
 
 }

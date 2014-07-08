@@ -18,7 +18,17 @@ class FileUtils {
    }
 
    static Set<Path> findAllSubPaths(Path rootDirectoryPath) {
-      []
+      Set<Path> subPaths = [] as Set
+      Files.walkFileTree(rootDirectoryPath, new SimpleFileVisitor<Path>() {
+         @Override
+         public FileVisitResult preVisitDirectory(
+            Path dir, BasicFileAttributes attrs
+         ) throws IOException {
+            subPaths << dir
+            return FileVisitResult.CONTINUE
+         }
+      })
+      return subPaths
    }
 
    static WatchService createWatchService() {
