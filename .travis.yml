@@ -1,1 +1,3 @@
 language: groovy
+script:
+  - gradle test -i -DechoOut=true -DechoErr=true
