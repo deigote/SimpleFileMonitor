@@ -14,7 +14,7 @@ import java.nio.file.attribute.BasicFileAttributes
 
 class FileUtilsSpec extends Specification implements Logging {
 
-   void tearDown() {
+   void cleanup() {
       TestUtils.instance.cleanMetaClasses FileSystems, FileSystem, Files, FileUtils
    }
 

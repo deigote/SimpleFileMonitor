@@ -12,7 +12,7 @@ import java.util.logging.ConsoleHandler
 
 class FileMonitorSpec extends Specification implements Logging {
 
-   void tearDown() {
+   void cleanup() {
       cleanMetaClasses FileMonitor, FileUtils
    }
 
