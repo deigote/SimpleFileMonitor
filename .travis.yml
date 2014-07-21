@@ -1,3 +1,5 @@
 language: groovy
 script:
   - gradle test -i -DechoOut=true -DechoErr=true
+after_success:
+  - gradle cobertura coveralls
