@@ -5,6 +5,8 @@ repositories {
     mavenCentral()
 }
 
+version = '0.1'
+
 // Filesystems NIO library demands Java 7
 sourceCompatibility = 1.7
 targetCompatibility = 1.7
